@@ -1,12 +1,30 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+import clientServices from "./services/clientServices";
+import dataServices from "./services/dataServices";
+
+export default {
+  data() {
+    return {};
+  },
+  created() {
+    clientServices.getEnterpriseContact(info => {
+      let loginUserInfo = info[0];
+      window.$eventBus.loginUserInfo = loginUserInfo;
+      dataServices.login(loginUserInfo.phone).then(resp => {
+        window.$eventBus.logined = true;
+        window.$eventBus.loginTel = loginUserInfo.phone;
+      });
+    });
+  }
+};
+</script>
+
 
 <style lang="scss">
 #app {
@@ -15,15 +33,5 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
 }
 </style>
