@@ -13,15 +13,15 @@
       </div>
     </mu-dialog>
     <mu-dialog width="320" max-width="80%" title="SIM盾认证" :overlay-close="false" :esc-press-close="false" :open.sync="openSimAuth">
-      <mu-text-field v-model="formData.password" placeholder="Password" label="请输入SIM卡密码" full-width :action-icon="visibility ? 'visibility_off' : 'visibility'" :action-click="() => (visibility = !visibility)" :type="visibility ? 'text' : 'password'"></mu-text-field>
+      <mu-text-field v-model="password" placeholder="Password" label="请输入SIM卡密码" full-width :action-icon="visibility ? 'visibility_off' : 'visibility'" :action-click="() => (visibility = !visibility)" :type="visibility ? 'text' : 'password'"></mu-text-field>
       <div style="text-align:center;">
         <mu-button class="details-btn" flat color="error" @click="handleCancel()">取消</mu-button>
-        <mu-button class="details-btn" flat color="primary" @click="handleSubmit()">确定</mu-button>
+        <mu-button class="details-btn" flat color="primary" @click="handleOk()">确定</mu-button>
       </div>
     </mu-dialog>
     <div class="details-bottom fix-bottom" v-if="mode !== 'view'">
-      <mu-button class="details-btn" color="error" v-if="mode === 'approval'" @click="handleApproval(false)">不同意</mu-button>
-      <mu-button class="details-btn" color="primary" v-if="mode === 'approval'" @click="handleApproval(true)">同意</mu-button>
+      <mu-text-field class="details-bottom-input" v-if="mode === 'approval'" v-model="comment" placeholder="审批意见"></mu-text-field>
+      <mu-button class="details-btn" color="primary" v-if="mode === 'approval'" @click="handleApproval()">审批</mu-button>
       <mu-button class="details-btn" color="primary" v-if="mode === 'create'" @click="handleSubmit()">提交</mu-button>
     </div>
   </div>
@@ -42,7 +42,9 @@ export default {
       msgIcon: "check_circle",
       openSimAuth: false,
       visibility: false,
+      password: "",
       mode: "create",
+      comment: "",
       formFields: [
         {
           prop: "applicant",
@@ -54,11 +56,11 @@ export default {
         {
           prop: "applidate",
           label: "申请日期",
-          type: "datetime",
+          type: "dateTime",
           readonly: false,
           hidden: false,
           meta: {
-            valueFormat: "YYYY-MM-DD"
+            valueFormat: "YYYY-MM-DD HH:mm:ss"
           }
         },
         {
@@ -108,8 +110,7 @@ export default {
         department: "",
         job: "",
         applitem: "",
-        approver: "",
-        password: ""
+        approver: ""
       }
     };
   },
@@ -123,8 +124,13 @@ export default {
         } else {
           info = data.data;
         }
-        this.mode = "approval";
-        this.title = "审批流程";
+        if (info.status === "waiting") {
+          this.mode = "approval";
+          this.title = "审批流程";
+        } else {
+          this.mode = "view";
+          this.title = "查看流程";
+        }
         this.formData.applicant = info.applicant;
         this.formData.applidate = info.appliDate;
         this.formData.department = info.department;
@@ -139,15 +145,36 @@ export default {
         });
       });
     },
-    handleApproval(isPass) {
-      // TODO: 审批
-      if (isPass) {
-        this.openSimAuth = true;
-      } else {
-      }
+    handleApproval() {
+      dataServices.checkforca().then(res => {
+        let status = res.data;
+        if (status === "success") {
+          this.sendApproval();
+        } else {
+          dataServices.applica().then(applica_res => {
+            if (applica_res.data === "success") {
+              dataServices.sign().then(sign_res => {
+                this.sendApproval();
+              });
+            }
+          });
+        }
+      })
+    },
+    sendApproval() {
+      let id = this.$route.params.id,
+        comment = this.comment;
+      dataServices.approvebyid(id, comment).then(res => {
+        let status = res.data;
+        if (status === "success") {
+          this.$toast.success("审批成功");
+          this.$router.go(-1);
+        } else {
+          this.$toast.error("审批失败");
+        }
+      });
     },
     handleSubmit() {
-      // TODO: 提交
       this.openSimAuth = false;
       this.visibility = false;
       dataServices.formsub(this.formData).then(response => {
@@ -174,7 +201,11 @@ export default {
     handleCancel() {
       this.openSimAuth = false;
       this.visibility = false;
-      this.formData.password = "";
+      this.password = "";
+    },
+    handleOk() {
+      // TODO: 确定sim卡密码
+      this.visibility = false;
     }
   },
   components: {
@@ -229,6 +260,9 @@ export default {
 }
 .details-btn:first-child {
   margin-left: 0;
+}
+.details-bottom-input {
+  width: calc(100% - 120px);
 }
 .details-msg {
   position: absolute;

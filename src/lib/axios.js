@@ -28,8 +28,7 @@ if (!window.$axios) {
   };
 
   let instance = axios.create({
-    timeout: 10000,
-    responseType: "json"
+    timeout: 30000
   });
 
   if (process.env.NODE_ENV === "production") {

@@ -9,8 +9,8 @@
           <mu-text-field v-if="field.type === 'singleText'" v-model="formData[field.prop]"></mu-text-field>
           <mu-text-field v-if="field.type === 'multiText'" multi-line :rows="(field.meta && field.meta.rows) || 3" :rows-max="(field.meta && field.meta.rowsMax) || 6" v-model="formData[field.prop]"></mu-text-field>
           <mu-date-input v-if="field.type === 'date'" type="date" container="bottomSheet" v-model="formData[field.prop]" :value-format="(field.meta && field.meta.valueFormat) || 'YYYY-MM-DD'" no-display></mu-date-input>
-          <mu-date-input v-if="field.type === 'time'" type="time" container="bottomSheet" v-model="formData[field.prop]" :value-format="(field.meta && field.meta.valueFormat) || 'HH:mm:SS'" no-display></mu-date-input>
-          <mu-date-input v-if="field.type === 'dateTime'" type="dateTime" container="bottomSheet" v-model="formData[field.prop]" :value-format="(field.meta && field.meta.valueFormat) || 'YYYY-MM-DD HH:mm:SS'" no-display></mu-date-input>
+          <mu-date-input v-if="field.type === 'time'" type="time" container="bottomSheet" v-model="formData[field.prop]" :value-format="(field.meta && field.meta.valueFormat) || 'HH:mm:ss'" no-display></mu-date-input>
+          <mu-date-input v-if="field.type === 'dateTime'" type="dateTime" container="bottomSheet" v-model="formData[field.prop]" :value-format="(field.meta && field.meta.valueFormat) || 'YYYY-MM-DD HH:mm:ss'" no-display></mu-date-input>
           <mu-text-field v-if="field.type === 'user'" :ref="`user_${field.prop}`" v-model="formData[field.prop]" readonly @click="selectUser(field)" @keyup.tab="selectUser(field)"></mu-text-field>
         </template>
       </mu-form-item>
