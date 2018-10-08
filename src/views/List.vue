@@ -82,7 +82,7 @@ export default {
       this.isListRefreshing = true;
       this.currentPage = 1;
       this.pageSize = oldSize * oldPage;
-      this.getList(status => {
+      this.getList(() => {
         this.$nextTick(() => {
           this.isListRefreshing = false;
           this.pageSize = oldSize;
@@ -94,7 +94,7 @@ export default {
       if (!this.isListLoadedAll) {
         this.isListLoading = true;
         this.currentPage += 1;
-        this.getList(status => {
+        this.getList(() => {
           this.$nextTick(() => {
             this.isListLoading = false;
           });
@@ -104,7 +104,7 @@ export default {
     getList(next) {
       let isFirstPage = this.currentPage === 1,
         totalSize = this.currentPage * this.pageSize,
-        tel = window.$eventBus.loginUserInfo.phone,
+        //tel = window.$eventBus.loginUserInfo.phone,
         //filter = { page: this.currentPage, size: this.pageSize, tel: tel };
         filter = {};
       dataServices
@@ -138,7 +138,7 @@ export default {
           }
         })
         .catch(error => {
-          if (isFirstPage && error.response.status === 500) {
+          if (isFirstPage && error.response && error.response.status === 500) {
             this.dataEmpty = true;
           }
           if (typeof next === "function") {

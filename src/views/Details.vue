@@ -153,13 +153,13 @@ export default {
         } else {
           dataServices.applica().then(applica_res => {
             if (applica_res.data === "success") {
-              dataServices.sign().then(sign_res => {
+              dataServices.sign().then(() => {
                 this.sendApproval();
               });
             }
           });
         }
-      })
+      });
     },
     sendApproval() {
       let id = this.$route.params.id,

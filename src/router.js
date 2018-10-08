@@ -10,6 +10,12 @@ export default new Router({
   routes: [
     {
       path: "/",
+      redirect: {
+        name: "list"
+      }
+    },
+    {
+      path: "/list",
       name: "list",
       component: List
     },
