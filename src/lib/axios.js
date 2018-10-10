@@ -32,9 +32,9 @@ if (!window.$axios) {
   });
 
   if (process.env.NODE_ENV === "production") {
-    instance.defaults.baseURL = ""; // 生产环境api地址前缀
+    instance.defaults.baseURL = "http://localhost:8081"; // 生产环境api地址前缀
   } else {
-    instance.defaults.baseURL = "http://11.11.11.125:8080";
+    instance.defaults.baseURL = "http://localhost:8081";
   }
 
   instance.defaults.headers.post["Content-Type"] =

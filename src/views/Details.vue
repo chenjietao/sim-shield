@@ -12,13 +12,13 @@
         <div :style="{color: msgColor === 'success' ? '#4caf50': '#f44336'}">{{msg}}</div>
       </div>
     </mu-dialog>
-    <mu-dialog width="320" max-width="80%" title="SIM盾认证" :overlay-close="false" :esc-press-close="false" :open.sync="openSimAuth">
+    <!--<mu-dialog width="320" max-width="80%" title="SIM盾认证" :overlay-close="false" :esc-press-close="false" :open.sync="openSimAuth">
       <mu-text-field v-model="password" placeholder="Password" label="请输入SIM卡密码" full-width :action-icon="visibility ? 'visibility_off' : 'visibility'" :action-click="() => (visibility = !visibility)" :type="visibility ? 'text' : 'password'"></mu-text-field>
       <div style="text-align:center;">
         <mu-button class="details-btn" flat color="error" @click="handleCancel()">取消</mu-button>
         <mu-button class="details-btn" flat color="primary" @click="handleOk()">确定</mu-button>
       </div>
-    </mu-dialog>
+    </mu-dialog>-->
     <div class="details-bottom fix-bottom" v-if="mode !== 'view'">
       <mu-text-field class="details-bottom-input" v-if="mode === 'approval'" v-model="comment" placeholder="审批意见"></mu-text-field>
       <mu-button class="details-btn" color="primary" v-if="mode === 'approval'" @click="handleApproval()">审批</mu-button>
@@ -40,9 +40,9 @@ export default {
       msg: "提交成功",
       msgColor: "success",
       msgIcon: "check_circle",
-      openSimAuth: false,
-      visibility: false,
-      password: "",
+      //openSimAuth: false,
+      //visibility: false,
+      //password: "",
       mode: "create",
       comment: "",
       formFields: [
@@ -175,8 +175,8 @@ export default {
       });
     },
     handleSubmit() {
-      this.openSimAuth = false;
-      this.visibility = false;
+      //this.openSimAuth = false;
+      //this.visibility = false;
       dataServices.formsub(this.formData).then(response => {
         if (response.data === "success") {
           this.msg = "提交成功";
@@ -197,7 +197,7 @@ export default {
           }, 2000);
         }
       });
-    },
+    }/*,
     handleCancel() {
       this.openSimAuth = false;
       this.visibility = false;
@@ -207,6 +207,7 @@ export default {
       // TODO: 确定sim卡密码
       this.visibility = false;
     }
+    */
   },
   components: {
     FormList
