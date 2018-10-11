@@ -25,8 +25,8 @@
           </mu-list-item>
           <mu-list-item v-if="!dataEmpty" button v-for="item in list" :key="item.tel" @click="jumpDetails(item.id)">
             <mu-list-item-content>
-              <mu-list-item-title>{{item.applicant}}</mu-list-item-title>
-              <mu-list-item-sub-title>{{item.appliDate}}</mu-list-item-sub-title>
+              <mu-list-item-title>{{item.appliTitle}}</mu-list-item-title>
+              <mu-list-item-sub-title>{{item.applidate}}</mu-list-item-sub-title>
             </mu-list-item-content>
             <mu-list-item-action>
               <mu-icon value="info"></mu-icon>
@@ -104,16 +104,19 @@ export default {
     getList(next) {
       let isFirstPage = this.currentPage === 1,
         totalSize = this.currentPage * this.pageSize,
-        //tel = window.$eventBus.loginUserInfo.phone,
-        //filter = { page: this.currentPage, size: this.pageSize, tel: tel };
-        filter = {};
+        tel = window.$eventBus.loginUserInfo.phone;
       dataServices
-        .checkwaitingmsg(filter)
+        .checkwaitingmsg(tel)
         .then(response => {
           let data = response.data;
           let list;
-          if (data instanceof Array) {
-            list = data;
+          if (data.code !== "1") {
+            this.$toast.error(data.msg);
+            this.dataEmpty = true;
+            if (typeof next === "function") {
+              next("error");
+            }
+            return;
           } else {
             list = data.data;
           }

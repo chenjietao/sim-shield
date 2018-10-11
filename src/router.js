@@ -5,7 +5,7 @@ import List from "./views/List.vue";
 Vue.use(Router);
 
 export default new Router({
-  mode: "history",
+  mode: "hash",
   base: process.env.BASE_URL,
   routes: [
     {
@@ -31,6 +31,21 @@ export default new Router({
     {
       path: "/create",
       name: "create",
+      component: () => import("./views/Details.vue")
+    },
+    {
+      path: "/sdk-list",
+      name: "sdk-list",
+      component: List
+    },
+    {
+      path: "/sdk-details/:id",
+      name: "sdk-details",
+      component: () => import("./views/Details.vue")
+    },
+    {
+      path: "/sdk-create",
+      name: "sdk-create",
       component: () => import("./views/Details.vue")
     }
   ]

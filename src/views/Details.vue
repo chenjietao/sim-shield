@@ -30,11 +30,15 @@
 <script>
 import moment from "moment";
 import dataServices from "../services/dataServices";
+import clientServices from "../services/clientServices";
 import FormList from "../components/FormList";
+
+let reqServices = dataServices;
 
 export default {
   data() {
     return {
+      isSDK: false,
       title: "审批流程",
       openSubmitInfo: false,
       msg: "提交成功",
@@ -46,6 +50,13 @@ export default {
       mode: "create",
       comment: "",
       formFields: [
+        {
+          prop: "appliTitle",
+          label: "申请标题",
+          type: "singleText",
+          readonly: false,
+          hidden: false
+        },
         {
           prop: "applicant",
           label: "申请人",
@@ -65,21 +76,21 @@ export default {
         },
         {
           prop: "department",
-          label: "申请部门",
+          label: "申请人部门",
           type: "singleText",
           readonly: true,
           hidden: false
         },
         {
           prop: "job",
-          label: "岗位",
+          label: "申请人岗位",
           type: "singleText",
-          readonly: true,
+          readonly: false,
           hidden: false
         },
         {
           prop: "applitem",
-          label: "审批事项",
+          label: "申请内容",
           type: "multiText",
           readonly: false,
           hidden: false,
@@ -99,28 +110,35 @@ export default {
               enterpriseId: ""
             },
             keyValue: {
-              name: "approver"
+              name: "approver",
+              phone: "approverTell"
             }
           }
         }
       ],
       formData: {
+        appliTell: "",
         applicant: "",
         applidate: "",
+        appliTitle: "",
         department: "",
         job: "",
         applitem: "",
+        approverTell: "",
         approver: ""
       }
     };
   },
   methods: {
-    getCheckById(id) {
-      dataServices.checkbyid(id).then(response => {
+    getCheckById(id, tel) {
+      reqServices.checkbyid(id, tel).then(response => {
         let data = response.data;
         let info;
-        if (data.applicant) {
-          info = data;
+        if (data.code !== "1") {
+          this.mode = "approval";
+          this.title = "审批流程";
+          this.$toast.error(data.msg);
+          return;
         } else {
           info = data.data;
         }
@@ -132,11 +150,13 @@ export default {
           this.title = "查看流程";
         }
         this.formData.applicant = info.applicant;
-        this.formData.applidate = info.appliDate;
+        this.formData.appliTell = info.appliTell;
+        this.formData.applidate = info.applidate;
         this.formData.department = info.department;
         this.formData.job = info.job;
-        this.formData.applitem = info.appliItem;
-        delete this.formData.approver;
+        this.formData.applitem = info.applitem;
+        this.formData.approver = info.approver;
+        this.formData.approverTell = info.approverTell;
         this.formFields.forEach(item => {
           item.readonly = true;
           if (item.prop === "approver") {
@@ -146,40 +166,57 @@ export default {
       });
     },
     handleApproval() {
-      dataServices.checkforca().then(res => {
-        let status = res.data;
-        if (status === "success") {
-          this.sendApproval();
-        } else {
-          dataServices.applica().then(applica_res => {
-            if (applica_res.data === "success") {
-              dataServices.sign().then(() => {
-                this.sendApproval();
-              });
-            }
-          });
-        }
-      });
+      // TODO: 修改审批流程
+      if (this.isSDK) {
+        clientServices.doSignature(this.formData, json => {
+          if (json.code === "1") {
+            this.sendApproval();
+          } else {
+            this.$toast.error(json.msg);
+          }
+        });
+      } else {
+        reqServices.checkforca().then(res => {
+          let status = res.data;
+          if (typeof status === "object") {
+            status = status.data;
+          }
+          if (status === "success") {
+            this.sendApproval();
+          } else {
+            reqServices.applica().then(applicaRes => {
+              let status2 = applicaRes.data;
+              if (typeof status2 === "object") {
+                status2 = status2.data;
+              }
+              if (status2 === "success") {
+                reqServices.sign().then(() => {
+                  this.sendApproval();
+                });
+              }
+            });
+          }
+        });
+      }
     },
     sendApproval() {
       let id = this.$route.params.id,
         comment = this.comment;
-      dataServices.approvebyid(id, comment).then(res => {
-        let status = res.data;
-        if (status === "success") {
-          this.$toast.success("审批成功");
+      reqServices.approvebyid(id, comment).then(res => {
+        let data = res.data;
+        this.$toast.success(data.msg);
+        if (data.code === "1") {
           this.$router.go(-1);
-        } else {
-          this.$toast.error("审批失败");
         }
       });
     },
     handleSubmit() {
       //this.openSimAuth = false;
       //this.visibility = false;
-      dataServices.formsub(this.formData).then(response => {
-        if (response.data === "success") {
-          this.msg = "提交成功";
+      reqServices.formsub(this.formData).then(response => {
+        let data = response.data;
+        this.msg = data.msg;
+        if (data.code === "1") {
           this.msgColor = "success";
           this.msgIcon = "check_circle";
           this.openSubmitInfo = true;
@@ -188,7 +225,6 @@ export default {
             this.$router.go(-1);
           }, 2000);
         } else {
-          this.msg = "提交失败";
           this.msgColor = "error";
           this.msgIcon = "error";
           this.openSubmitInfo = true;
@@ -214,11 +250,19 @@ export default {
   },
   created() {
     let info = window.$eventBus.loginUserInfo;
-    if (this.$route.name === "create") {
+    if (this.$route.name.indexOf("sdk-") === 0){
+      this.isSDK = true;
+      // reqServices = sdkDataServices;
+    } else {
+      this.isSDK = false;
+      reqServices = dataServices;
+    }
+    if (this.$route.name === "create" || this.$route.name === "sdk-create") {
       this.mode = "create"; // 新建表单
       this.title = "创建流程";
       this.formData.applidate = moment().format("YYYY-MM-DD HH:mm:ss");
       this.formData.applicant = info.name;
+      this.formData.appliTell = info.phone;
       this.formData.department = info.department;
       this.formData.job = info.position;
       this.formFields.forEach(item => {
@@ -228,8 +272,8 @@ export default {
           item.meta.funcParams.enterpriseId = info.enterpriseId;
         }
       });
-    } else if (this.$route.name === "details") {
-      this.getCheckById(this.$route.params.id);
+    } else if (this.$route.name === "details" ||this.$route.name === "sdk-details") {
+      this.getCheckById(this.$route.params.id, info.phone);
     }
   }
 };

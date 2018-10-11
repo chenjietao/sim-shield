@@ -2,18 +2,17 @@
 import axios from "../lib/axios";
 
 export default {
-  checkwaitingmsg(options) {
+  checkwaitingmsg(tel) {
     // 点击查看待审批列表
-    return axios.get("/demo/checkwaitingmsg", {
-      params: options
+    return axios.post("/demo/checkwaitingmsg", {
+      approverTell: tel
     });
   },
-  checkbyid(id) {
+  checkbyid(id, tel) {
     // 点击某一个待审批合同，返回该合同详细信息
-    return axios.get("/demo/checkbyid", {
-      params: {
-        id: id
-      }
+    return axios.post("/demo/checkbyid", {
+      contractId: id,
+      approverTell: tel
     });
   },
   formsub(data) {
@@ -26,29 +25,23 @@ export default {
       tel: tel
     });
   },
-  checkforca(options) {
+  checkforca() {
     // 查看当前用户是否拥有CA证书
-    return axios.get("/demo/checkforca", {
-      params: options
-    });
+    return axios.post("/demo/checkforca", {});
   },
-  applica(options) {
+  applica() {
     // 申请CA证书
-    return axios.get("/demo/applica", {
-      params: options
-    });
+    return axios.post("/demo/applica", {});
   },
-  sign(options) {
+  sign() {
     // 进行SIM盾签名
-    return axios.get("/demo/sign", {
-      params: options
-    });
+    return axios.post("/demo/sign", {});
   },
   approvebyid(id, comment) {
     // 审批功能
     return axios.post("/demo/approvebyid", {
-      id: id,
-      comment: comment
+      contractId: id,
+      approveComment: comment
     });
   }
 };

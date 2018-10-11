@@ -16,10 +16,12 @@ export default {
     clientServices.getEnterpriseContact(info => {
       let loginUserInfo = info[0];
       window.$eventBus.loginUserInfo = loginUserInfo;
+      /*
       dataServices.login(loginUserInfo.phone).then(() => {
         window.$eventBus.logined = true;
         window.$eventBus.loginTel = loginUserInfo.phone;
       });
+      */
     });
   }
 };

@@ -109,10 +109,26 @@ function selectEnterpriseContactWithEnterId(eid, callback) {
   );
 }
 
+function doSignature(data, callback) {
+  let rand = Math.floor(Math.random() * 10000000),
+    backId = `backId_${rand}`,
+    backFunc = `backFunc_${rand}`;
+  handleCallback(backId, backFunc, callback);
+  let wc = clientWebContaner();
+  wc.doSignature(
+    JSON.stringify({
+      backId: backId,
+      backFunc: backFunc,
+      data: data
+    })
+  );
+}
+
 export default {
   clientWebContaner,
   getEnterpriseContact,
   getEnterpriseContactById,
   getEnterpriseContactByPhone,
-  selectEnterpriseContactWithEnterId
+  selectEnterpriseContactWithEnterId,
+  doSignature
 };

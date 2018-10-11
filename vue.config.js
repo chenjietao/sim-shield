@@ -1,4 +1,7 @@
+const baseUrl =
+  process.env.NODE_ENV === "production" ? "/demo/simShield/" : "/";
 module.exports = {
+  baseUrl,
   devServer: {
     proxy: {
       "/demo": {

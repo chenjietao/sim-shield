@@ -1,6 +1,6 @@
 import Vue from "vue";
 import axios from "axios";
-import qs from "qs";
+// import qs from "qs";
 
 if (!window.$axios) {
   if (window.$reqestingCount == null) {
@@ -37,6 +37,7 @@ if (!window.$axios) {
     instance.defaults.baseURL = "http://localhost:8081";
   }
 
+  /*
   instance.defaults.headers.post["Content-Type"] =
     "application/x-www-form-urlencoded";
 
@@ -47,6 +48,7 @@ if (!window.$axios) {
     }
     return data;
   };
+  */
 
   instance.interceptors.request.use(
     config => {
@@ -54,6 +56,8 @@ if (!window.$axios) {
       showLoading();
       window.$reqestingCount += 1;
 
+      return config;
+      /*
       if (config.url.indexOf("/login") > -1) {
         // 登录请求不拦截
         return config;
@@ -76,6 +80,7 @@ if (!window.$axios) {
           }, 10);
         });
       }
+      */
     },
     error => {
       // request eror

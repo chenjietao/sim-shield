@@ -19,12 +19,12 @@ import {
   theme
 } from "muse-ui";
 import "muse-ui/lib/styles/theme.less";
-import museUILoading from "muse-ui-loading/src/umd";
-import museUIToast from "muse-ui-toast/src/umd";
-import museUIMessage from "muse-ui-message/src/umd";
+import Loading from "muse-ui-loading/src/umd";
+import Toast from "muse-ui-toast/src/umd";
+import Message from "muse-ui-message/src/umd";
 import App from "./App.vue";
 import router from "./router";
-import "./registerServiceWorker";
+// import "./registerServiceWorker"; // 暂时不使用PWA
 import "./lib/eventBus";
 import "./lib/axios";
 
@@ -45,14 +45,14 @@ Vue.use(TextField);
 Vue.use(LoadMore);
 theme.use("light");
 
-Vue.use(museUILoading, {
+Vue.use(Loading, {
   overlayColor: "rgba(0, 0, 0, .02)",
   color: "primary",
   size: 32,
   target: document.getElementById("app")
 });
-Vue.use(museUIToast);
-Vue.use(museUIMessage);
+Vue.use(Toast);
+Vue.use(Message);
 
 new Vue({
   router,
